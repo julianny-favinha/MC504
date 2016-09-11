@@ -1,4 +1,17 @@
-/* Implementacao ingenua do problema do bar de sushi */
+/* THE SUSHI BAR PROBLEM 
+ * 
+ * Igor Gustavo Hitzschky Lema - 155758
+ * João Vítor Buscatto Silva - 155951
+ * Julianny Favinha Donda - 156059
+ * Ronaldo Prata Amorim - 157228
+ * 
+ * 2º SEMESTRE DE 2016 - MC504
+ * 
+ * Resumo: Imagine um bar de sushi com 5 lugares. Se você chegar quando
+ * ainda existe um lugar vazio, você pode usá-lo. Mas se você chegar e 
+ * os 5 lugares estiverem ocupados, isso significa que todas as 5 
+ * pessoas estão comendo juntas. Dessa forma, você deve esperar todos 
+ * irem embora para poder entrar no bar.  */
 
 #include <pthread.h>
 #include <semaphore.h>
@@ -25,6 +38,18 @@ int min(int x, int y){
 void exibe_bar(){
     // TODO atualizacao de cada status do bar.
     // animacao ocorre aqui
+    
+    /* possível design da animação
+     *      ---------------------------
+     *      |      _____________      |
+     *  	|     |_____BAR_____|     |
+     * 	2	       __ __ __ __ __     |
+     * 		|       4 15  8 10  1     |
+     * 		|                         |
+     * 		---------------------------
+     * Onde os números são os clientes
+     * *Bar lotado*
+     * */
 }
 
 void* f_cliente(void *v){
@@ -54,7 +79,7 @@ void* f_cliente(void *v){
     comendo--;
     if(comendo == 0){
         printf("Cliente %d avisou que está vazio!\n", cli_id);
-        n = min(5, esperando); // libera ou 5, ou o que tiver esperando comer
+        n = min(5, esperando); // libera os 5 clientes, ou a qtd que tiver esperando comer
         esperando -= n;
         comendo += n;
         espera = (comendo == 5);
