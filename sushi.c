@@ -21,11 +21,11 @@
 #include <stdbool.h>
 
 #define SEATS 5
-#define MAX_CLIENTES 50
+#define MAX_CLIENTES 15
 
 sem_t mutex, block;
 
-bool espera;
+bool espera = false;
 
 /* contadores */
 int esperando = 0, comendo = 0;
@@ -53,24 +53,25 @@ void exibe_bar(){
 }
 
 void* f_cliente(void *v){
-    int cli_id = *(int *) v, n;
-
-    printf("Cliente %d entrou no bar\n", cli_id);
+    int i, cli_id = *(int *) v, n;
 
     sem_wait(&mutex);
     if(espera){
+        printf("Cliente %d está esperando na porta\n", cli_id);
         esperando++;
         sem_post(&mutex);
         sem_wait(&block); // espera todos os lugares liberarem
+        while (comendo > 0);
     }else{
         comendo++;
         espera = (comendo == 5);
+        sem_post(&block); // COMENTAR AQUI
         sem_post(&mutex);
     }
-    
+    printf("Cliente %d entrou no bar\n", cli_id);
     // começou a comer
     printf("Cliente %d começou a comer\n", cli_id);
-    sleep(2);
+    sleep(7);
     exibe_bar();
 
     // acabou de comer
@@ -83,7 +84,8 @@ void* f_cliente(void *v){
         esperando -= n;
         comendo += n;
         espera = (comendo == 5);
-        sem_post(&block); // sem_post(&block, n)? como liberar os N que estao esperando em C?
+        for (i = 0; i <  n; i++)
+			sem_post(&block);  // sem_post(&block, n)? como liberar os N que estao esperando em C? R: fazer um laço para isso!
     }
     sem_post(&mutex);
     return (void*) v;
@@ -95,7 +97,7 @@ int main(){
     int i;
 
     sem_init(&mutex, 0, 1); // iniciando mutex
-    sem_init(&block, 0, 1); // como inicia esse semaforo em C? (pergunta identica a de cima)
+    sem_init(&block, 0, SEATS); // como inicia esse semaforo em C? (pergunta identica a de cima) R: o numero de SEATS
 
     // exibe bar inicial
     exibe_bar();
