@@ -61,11 +61,11 @@ void* f_cliente(void *v){
         esperando++;
         sem_post(&mutex);
         sem_wait(&block); // espera todos os lugares liberarem
-        while (comendo > 0);
+        // while (comendo > 0);
     }else{
         comendo++;
         espera = (comendo == 5);
-        sem_post(&block); // COMENTAR AQUI
+        //sem_post(&block); // COMENTAR AQUI
         sem_post(&mutex);
     }
     printf("Cliente %d entrou no bar\n", cli_id);
@@ -97,7 +97,7 @@ int main(){
     int i;
 
     sem_init(&mutex, 0, 1); // iniciando mutex
-    sem_init(&block, 0, SEATS); // como inicia esse semaforo em C? (pergunta identica a de cima) R: o numero de SEATS
+    sem_init(&block, 0, 0); // como inicia esse semaforo em C? (pergunta identica a de cima) R: o numero de SEATS
 
     // exibe bar inicial
     exibe_bar();
