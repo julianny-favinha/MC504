@@ -23,8 +23,11 @@
 #define SEATS 5
 #define MAX_CLIENTES 15
 
+/* mutex garante exclusão mútua e
+ * block garante que só existem no máximo 5 pessoas dentro do bar */
 sem_t mutex, block;
 
+/* indica se existe espera ou não para entrar no bar */
 bool espera = false;
 
 /* contadores */
@@ -65,7 +68,7 @@ void* f_cliente(void *v) {
     printf("Cliente %d está indo embora\n", cli_id);
     sem_wait(&mutex);
     comendo--;
-    if(comendo == 0) {
+    if (comendo == 0) {
         printf("Cliente %d avisou que está vazio!\n", cli_id);
         n = min(5, esperando); // n é 5 ou é a qtd de clientes que estava esperando na porta
         esperando -= n;
