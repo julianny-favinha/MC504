@@ -31,45 +31,32 @@ bool espera = false;
 int esperando = 0, comendo = 0;
 
 /* auxiliar */
-int min(int x, int y){
+int min(int x, int y) {
     return (x < y) ? x : y;
 }
 
-void exibe_bar(){
-    // TODO atualizacao de cada status do bar.
-    // animacao ocorre aqui
-    
-    /* possível design da animação
-     *      ---------------------------
-     *      |      _____________      |
-     *  	|     |_____BAR_____|     |
-     * 	2	       __ __ __ __ __     |
-     * 		|       4 15  8 10  1     |
-     * 		|                         |
-     * 		---------------------------
-     * Onde os números são os clientes
-     * *Bar lotado*
-     * */
+void exibe_bar() { 
+    /// TODO atualizacao de cada status do bar. a animacao ocorre aqui
 }
 
-void* f_cliente(void *v){
-    int i, cli_id = *(int *) v, n;
+void* f_cliente(void *v) {
+    int i, n, cli_id = *(int *) v;
 
     sem_wait(&mutex);
-    if(espera){
+    if(espera) {
         printf("Cliente %d está esperando na porta\n", cli_id);
         esperando++;
         sem_post(&mutex);
         sem_wait(&block); // espera todos os lugares liberarem
-        // while (comendo > 0);
-    }else{
+    } else {
         comendo++;
         espera = (comendo == 5);
-        //sem_post(&block); // COMENTAR AQUI
         sem_post(&mutex);
     }
+    
+    // cliente entrou no bar e começa a comer
     printf("Cliente %d entrou no bar\n", cli_id);
-    // começou a comer
+    sleep(1);
     printf("Cliente %d começou a comer\n", cli_id);
     sleep(7);
     exibe_bar();
@@ -78,31 +65,32 @@ void* f_cliente(void *v){
     printf("Cliente %d está indo embora\n", cli_id);
     sem_wait(&mutex);
     comendo--;
-    if(comendo == 0){
+    if(comendo == 0) {
         printf("Cliente %d avisou que está vazio!\n", cli_id);
-        n = min(5, esperando); // libera os 5 clientes, ou a qtd que tiver esperando comer
+        n = min(5, esperando); // n é 5 ou é a qtd de clientes que estava esperando na porta
         esperando -= n;
         comendo += n;
         espera = (comendo == 5);
+        // libera os n clientes
         for (i = 0; i <  n; i++)
-			sem_post(&block);  // sem_post(&block, n)? como liberar os N que estao esperando em C? R: fazer um laço para isso!
+			sem_post(&block);
     }
     sem_post(&mutex);
     return (void*) v;
 }
-
 
 int main(){
     pthread_t thr[MAX_CLIENTES];
     int i;
 
     sem_init(&mutex, 0, 1); // iniciando mutex
-    sem_init(&block, 0, 0); // como inicia esse semaforo em C? (pergunta identica a de cima) R: o numero de SEATS
+    sem_init(&block, 0, 0); // iniciando block
 
     // exibe bar inicial
     exibe_bar();
 
     // iniciando as threads de todos os clientes
+    /// ****** TODO: como fazer uma ordem aleatória de clientes? ******* ///
     for(i = 1; i <= MAX_CLIENTES; i++){
         pthread_create(&thr[i-1], NULL, f_cliente, (void *) &i);
         sleep(1); // espera 1 segundo pra cada cliente entrar 
@@ -114,4 +102,3 @@ int main(){
 
     return 0;
 }
-
