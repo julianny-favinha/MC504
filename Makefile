@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -pthread -Wall -g -l pthread
 
-PROGRAMS = sushi \
+PROGRAMS = sushi color_test \
 
 all: $(PROGRAMS)
 
