@@ -26,8 +26,12 @@
 #include <string.h>
 
 #define ANSI_COLOR_RED    "\x1b[31m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_BLUE   "\x1b[34m"
 #define ANSI_COLOR_RESET  "\x1b[0m"
 #define PRINT_RED(str)    printf("%s%s%s", ANSI_COLOR_RED, str, ANSI_COLOR_RESET)
+#define PRINT_YELLOW(str) printf("%s%s%s", ANSI_COLOR_YELLOW, str, ANSI_COLOR_RESET)
+#define PRINT_BLUE(str)   printf("%s%s%s", ANSI_COLOR_BLUE, str, ANSI_COLOR_RESET)
 
 #define SEATS 5
 #define MAX_CLIENTES 15
@@ -51,7 +55,11 @@ int fila[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 // - 3 -> comendo
 // Coluna 3 - número de cliente
 int clientes[5][3] = {
-	{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0}
+	{0,0,0},
+	{0,0,0},
+	{0,0,0},
+	{0,0,0},
+	{0,0,0}
 };
 
 /* auxiliar */
@@ -61,8 +69,9 @@ int min(int x, int y) {
 
 /////////////////////////////////////////////QUEUE////////////////////////////////////
 void insereFila(int i){
-	int aux1 = i, aux2;
-	for(int h = 0; h < 10; h++){
+	int h, aux1 = i, aux2;
+	
+	for(h = 0; h < 10; h++){
 		aux2 = fila[h];
 		fila[h] = aux1;
 		aux1 = aux2;		
@@ -70,32 +79,35 @@ void insereFila(int i){
 }
 
 void removeFila(int i){
-	for(int h = 9; h >= 0; h--){
+	int h;
+	
+	for(h = 9; h >= 0; h--){
 		if(fila[h] == i){
 			fila[h] = -1;
 			return;
 		}
 	}
 }
-
-
-
 /////////////////////////////////////////////QUEUE////////////////////////////////////
 
 int buscaCliente(int id){
+	int i; 
+	
 	if(id == -1){ // busca primeira posição vaga
-		for(int i = 0; i < 5; i ++){
+		for(i = 0; i < 5; i ++){
 			if(clientes[i][0] == 0){
 				return i;
 			}
 		}
 	}else{
-		for(int i = 0; i < 5; i ++){
+		for(i = 0; i < 5; i ++){
 			if(clientes[i][2] == id){
 				return i;
 			}
 		}
 	}
+	
+	return -1;
 }
 
 void printMensagem(char s[]){
@@ -109,11 +121,12 @@ void printMensagem(char s[]){
 }
 
 void imprimeCabeca2(int i){
-	if(i%2 == 0){
-		printf("(◔ ◡ ◔)");
-	}else{
-		printf("(＾O＾)");
-//		printf(" ༼ຈل͜ຈ༽ ");
+	if(i%3 == 0) {
+		printf("(");PRINT_YELLOW("◔ ◡ ◔");printf(")");
+	} else if (i%3 == 1) {
+		printf("(");PRINT_YELLOW("＾O＾");printf(")");
+	} else {
+		printf("(");PRINT_YELLOW(" ¬.¬ ");printf(")");
 	}
 }
 
@@ -153,17 +166,19 @@ void imprimePerna(int i){
 }
 
 void imprimeFila(){
-	for(int i = 0; i < 10; i++){
+	int i;
+	
+	for(i = 0; i < 10; i++){
 		imprimeCabeca(i); printf("    ");
 	}
 	printf("\n");
-	for(int i = 0; i < 10; i++)
+	for(i = 0; i < 10; i++)
 		imprimeBraco(i);
 	printf("\n");
-	for(int i = 0; i < 10; i++)
+	for(i = 0; i < 10; i++)
 		imprimeTronco(i);
 	printf("\n");
-	for(int i = 0; i < 10; i++)
+	for(i = 0; i < 10; i++)
 		imprimePerna(i);
 	printf("\n");
 }
@@ -201,11 +216,11 @@ void imprimeCliente(int cliente){
 			break;
 			
 			case 3:
-				printf("%c                         ", ch[0]);imprimeCabeca2(clientes[cliente][2]);printf("   |   ,;'@@';,   |                                      |                            |\n");
+				printf("%c                         ", ch[0]);imprimeCabeca2(clientes[cliente][2]);printf("   |   ,;'");PRINT_RED("@@");printf("';,   |                                      |                            |\n");
 				if(clientes[cliente][2] < 10){
-					printf("%c                         /| %d |\\   |  |',_@@_,'|  |                                      |                            |\n", ch[1], clientes[cliente][2] );
+					printf("%c                         /| %d |\\   |  |',_", ch[1], clientes[cliente][2]);PRINT_RED("@@");printf("_,'|  |                                      |                            |\n");
 				}else{
-					printf("%c                         /| %d|\\   |  |',_@@_,'|  |                                      |                            |\n", ch[1], clientes[cliente][2] );
+					printf("%c                         /| %d|\\   |  |',_", ch[1], clientes[cliente][2]);PRINT_RED("@@");printf("_,'|  |                                      |                            |\n");
 				}
 				printf("%c                          |___|    |  |        |  |                                      |                            |\n", ch[2]);
 				printf("%c                          /   \\    |   '.____.'   |                                      |                            |\n", ch[3]);
@@ -222,9 +237,9 @@ void imprimeCliente(int cliente){
 void exibe_bar(char s[]) {
 	printf("\033[?1049h\033[H"); 
     printf("========================================================================================================================\n");
-    printf("|");PRINT_RED(" ┌─┐┬ ┬┌─┐┬ ┬┌─┐┌─┐┌─┐┬┬ "); printf("|        Clientes Esperando: %d   |   Clientes Atendidos: %d   |   Clientes no Bar: %d   \n", esperando, total, comendo);
-    printf("|");PRINT_RED(" └─┐│ │└─┐├─┤├─┤└─┐│  ││"); printf(" |---------------------------------------------------------------------------------------------\n");
-    printf("|");PRINT_RED(" └─┘└─┘└─┘┴ ┴┴ ┴└─┘└─┘┴┴ ");printf("|"); printMensagem(s);printf("\n");
+    printf("|");PRINT_BLUE(" ┌─┐┬ ┬┌─┐┬ ┬┌─┐┌─┐┌─┐┬┬ "); printf("|        Clientes Esperando: %d   |   Clientes Atendidos: %d   |   Clientes no Bar: %d   \n", esperando, total, comendo);
+    printf("|");PRINT_BLUE(" └─┐│ │└─┐├─┤├─┤└─┐│  ││"); printf(" |---------------------------------------------------------------------------------------------\n");
+    printf("|");PRINT_BLUE(" └─┘└─┘└─┘┴ ┴┴ ┴└─┘└─┘┴┴ ");printf("|"); printMensagem(s);printf("\n");
     printf("========================================================================================================================\n");
     imprimeCliente(0);
     printf("|                                   |              |                                      |                            |\n");
