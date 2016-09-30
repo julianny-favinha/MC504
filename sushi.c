@@ -110,7 +110,7 @@ int buscaCliente(int id){
 	return -1;
 }
 
-void printMensagem(char s[]){
+/*void printMensagem(char s[]){
 	char h[58] = "                                                         ";
 	printf("%s", s);
 	int i = strlen(h) - strlen(s);
@@ -118,7 +118,7 @@ void printMensagem(char s[]){
 		printf(" ");
 		i--;
 	}
-}
+}*/
 
 void imprimeCabeca2(int i){
 	if(i%3 == 0) {
@@ -239,7 +239,7 @@ void exibe_bar(char s[]) {
     printf("========================================================================================================================\n");
     printf("|");PRINT_BLUE(" ┌─┐┬ ┬┌─┐┬ ┬┌─┐┌─┐┌─┐┬┬ "); printf("|        Clientes Esperando: %d   |   Clientes Atendidos: %d   |   Clientes no Bar: %d   \n", esperando, total, comendo);
     printf("|");PRINT_BLUE(" └─┐│ │└─┐├─┤├─┤└─┐│  ││"); printf(" |---------------------------------------------------------------------------------------------\n");
-    printf("|");PRINT_BLUE(" └─┘└─┘└─┘┴ ┴┴ ┴└─┘└─┘┴┴ ");printf("|"); printMensagem(s);printf("\n");
+    printf("|");PRINT_BLUE(" └─┘└─┘└─┘┴ ┴┴ ┴└─┘└─┘┴┴ ");printf("|"); printf("%s\n", s);
     printf("========================================================================================================================\n");
     imprimeCliente(0);
     printf("|                                   |              |                                      |                            |\n");
@@ -307,7 +307,7 @@ void* f_cliente(void *v) {
 		exibe_bar(s);
 	}
     sem_post(&entrarlock);
-    sleep(2);
+    sleep(1);
     
     //comecou a comer
     sem_wait(&entrarlock);
@@ -338,7 +338,7 @@ void* f_cliente(void *v) {
         espera = (comendo == 5);
         sem_post(&mutex);
         sem_post(&entrarlock);
-        sleep(2);
+        sleep(1	);
         for (i = 0; i <  n; i++)
 			sem_post(&block);
     }else{
@@ -362,7 +362,7 @@ int main(){
 
     // exibe bar inicial
     exibe_bar("  Bar Aberto!");
-    sleep(2);
+    sleep(1);
 
     // iniciando as threads de todos os clientes
     /// ****** TODO: como fazer uma ordem aleatória de clientes? ******* ///
