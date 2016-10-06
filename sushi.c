@@ -14,8 +14,7 @@
  * irem embora para poder entrar no bar.  
  * 
  */
- 
- ///TODO: SHUFFLE Randômico - http://stackoverflow.com/questions/6127503/shuffle-array-in-c
+
  ///TODO: deslocar a mesa de sushi para a direita
  
 #include <pthread.h>
@@ -25,6 +24,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/time.h>
 
 #define ANSI_COLOR_RED    "\x1b[31m"
 #define ANSI_COLOR_YELLOW "\x1b[33m"
@@ -235,7 +235,7 @@ void imprimeCliente(int cliente) {
 void exibe_bar(char mensagem[]) {
 	printf("\033[?1049h\033[H"); 
     printf("========================================================================================================================\n");
-    printf("|");PRINT_BLUE(" ┌─┐┬ ┬┌─┐┬ ┬┌─┐┌─┐┌─┐┬┬ "); printf("|        Clientes Esperando: %d   |   Clientes Atendidos: %d   |   Clientes no Bar: %d   \n", esperando, total, comendo);
+    printf("|");PRINT_BLUE(" ┌─┐┬ ┬┌─┐┬ ┬┌─┐┌─┐┌─┐┬┬ "); printf("|        Clientes Esperando: %d   |   Clientes Atendidos: %d   |   Clientes no Bar: %d\n", esperando, total, comendo);
     printf("|");PRINT_BLUE(" └─┐│ │└─┐├─┤├─┤└─┐│  ││"); printf(" |---------------------------------------------------------------------------------------------\n");
     printf("|");PRINT_BLUE(" └─┘└─┘└─┘┴ ┴┴ ┴└─┘└─┘┴┴ ");printf("|"); printf("%s\n", mensagem);
     printf("========================================================================================================================\n");
@@ -354,23 +354,50 @@ void* f_cliente(void *v) {
     return (void*) v;
 }
 
+/* Arrange the elements of ARRAY in random order 
+ * Fonte: http://stackoverflow.com/questions/6127503/shuffle-array-in-c */
+void shuffle(int *array, int n) {    
+	int i, j, aux, usec;
+    struct timeval tv;
+    
+    gettimeofday(&tv, NULL);
+    usec = tv.tv_usec;
+    srand48(usec);
+
+    if (n > 1) {
+        for (i = n - 1; i > 0; i--) {
+            j = (unsigned int) (drand48()*(i+1));
+            aux = array[j];
+            array[j] = array[i];
+            array[i] = aux;
+        }
+    }
+}
+
 int main() {
     pthread_t thr[MAX_CLIENTES];
-    int i;
+    int i, id[MAX_CLIENTES];
 
     sem_init(&mutex, 0, 1); // iniciando mutex
     sem_init(&block, 0, 0); // iniciando block
     sem_init(&filalock, 0, 1); // iniciando lock da fila
-    sem_init(&imprimelock, 0, 1); // iniciando lock da impressao
-
-    // exibe bar inicial
+    sem_init(&imprimelock, 0, 1); // iniciando lock da impressão
+    
+    // inicializando ids dos clientes
+    for (i = 0; i < MAX_CLIENTES; i++) {
+		id[i] = i;
+	}
+	
+	// rearranja os ids do vetor id
+	shuffle(id, random() % MAX_CLIENTES);
+	
+	// exibe bar inicial
     exibe_bar("  Bar Aberto!");
     sleep(2);
-
+	
     // iniciando as threads de todos os clientes
-    /// ****** TODO: como fazer uma ordem aleatória de clientes? ******* ///
-    for (i = 1; i <= MAX_CLIENTES; i++) {
-        pthread_create(&thr[i-1], NULL, f_cliente, (void *) &i);
+    for (i = 0; i < MAX_CLIENTES; i++) {
+        pthread_create(&thr[i], NULL, f_cliente, (void *) &id[i]);
         sleep(1); // espera 1 segundo pra cada cliente entrar 
     }
 
@@ -378,5 +405,8 @@ int main() {
     for (i = 0; i < MAX_CLIENTES; i++) 
         pthread_join(thr[i], NULL);
 
+    // exibe bar final
+    exibe_bar("  Bar Fechado!");
+    
     return 0;
 }
