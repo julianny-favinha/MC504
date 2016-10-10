@@ -39,7 +39,7 @@
 #define SEATS 5
  
 /* eventos que cada cliente pode executar, em ordem */
-typedef enum{
+typedef enum {
     aguardo,
     entra,
     come,
@@ -138,10 +138,9 @@ int existeFila(int i) {
 int presentesFila() {
     int h, total = 0;
 
-    for (h = 0; h < 10; h++) {
+    for (h = 0; h < 10; h++)
         if (fila[h] != -1)
-            total++;    
-    }
+            total++;
 
     return total;
 }
@@ -158,11 +157,10 @@ void imprimeCabeca2(int i) {
 }
 
 void imprimeCabeca(int i) {
-    if (fila[i] == -1) {
+    if (fila[i] == -1)
         printf("       ");
-    } else {
+    else
         imprimeCabeca2(i);
-    }
 }
 
 void imprimeBraco(int i) {
@@ -190,30 +188,30 @@ void imprimePerna(int i) {
         printf(" /   \\     ");
 }
 
-void imprimeSMCabeca(int i){
-	if (chef == i){
+void imprimeSMCabeca(int i) {
+	if (chef == i) {
 		printf("  ==");PRINT_RED("@");printf("==  ");
 	} else {
 		printf("         ");
 	}
 }
 
-void imprimeSMBraco(int i){
-	if (chef == i){
+void imprimeSMBraco(int i) {
+	if (chef == i) {
 		printf("A (");PRINT_YELLOW("-");printf(" ^ ");PRINT_YELLOW("-");printf(") A");
 	} else {
 		printf("           ");
 	}
 }
 
-void imprimeSMTronco(int i){
+void imprimeSMTronco(int i) {
 	if (chef == i)
 		printf("\\/|   |\\/");
 	else
 		printf("         ");
 }
 
-void imprimeSMPerna(int i){
+void imprimeSMPerna(int i) {
 	if (chef == i)
 		printf("  |   |  ");
 	else
@@ -247,8 +245,8 @@ void imprimeCliente(int cliente) {
         ch[2] = 'I';
         ch[3] = 'T';
     }
-    if (clientes[cliente][0] == 1){ 
-        switch(clientes[cliente][1]) {
+    if (clientes[cliente][0] == 1) { 
+        switch (clientes[cliente][1]) {
             case 1:
                 printf("%c    ", ch[0]);imprimeCabeca2(clientes[cliente][2]);printf("                                              |              |    ");imprimeSMCabeca(cliente);printf("                                |\n");
                 if (clientes[cliente][2] < 10) {
@@ -337,7 +335,8 @@ void acao(evento tipo, int cliente) {
             clientes[posicao][1] = 2;
             clientes[posicao][2] = cliente;
             snprintf(s, sizeof(s), "  Cliente %d entrou no bar.  ", cliente);
-            if (existeFila(cliente)) removeFila(cliente);
+            if (existeFila(cliente))
+				removeFila(cliente);
             break;
         
         case come:
@@ -446,14 +445,21 @@ void shuffle(int *array, int n) {
 }
 
 int main() {
-	printf("\033[?1049h\033[H"); // Dá clear no terminal
-	printf("Informe o número máximo de clientes que serão atendidos no bar: ");
-	scanf("%d", &MAX_CLIENTES);
+	bool valid_max_clientes = false;
+	
+	while (!valid_max_clientes) {
+		printf("\033[?1049h\033[H"); // clear terminal
+		printf("Informe o número máximo de clientes que serão atendidos no bar: ");
+		scanf("%d", &MAX_CLIENTES);
+		setbuf(stdin, 0);
+		if (MAX_CLIENTES > 0)
+			valid_max_clientes = true;
+	}
 
     pthread_t thr[MAX_CLIENTES];
     int i, id[MAX_CLIENTES];
 
-    sem_init(&porta, 0, 0); // iniciando semaforo porta
+    sem_init(&porta, 0, 0); // iniciando semáforo porta
 
     // inicializando ids dos clientes
     for (i = 0; i < MAX_CLIENTES; i++) {
@@ -481,7 +487,7 @@ int main() {
     // exibe bar fechado
     exibe_bar("  Bar Fechado!");
     sleep(2);
-    printf("\033[?1049h\033[H"); // Dá clear no terminal
+    printf("\033[?1049h\033[H"); // clear terminal
     
     return 0;
 }
